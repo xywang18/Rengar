@@ -13,6 +13,8 @@ import rengar.util.Pair;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Base64;
 import java.util.LinkedList;
 import java.util.List;
@@ -54,6 +56,13 @@ public class Main {
         }
         if (cli.hasOption("single")) {
             String b64regex = cli.getOptionValue("single");
+            JSONObject jsonObject = Batch.handleSingleRegex(0, b64regex, true);
+            String jsonString = JSON.toJSONString(jsonObject, SerializerFeature.PrettyFormat);
+            System.out.println(jsonString);
+        } else if (cli.hasOption("file")) {
+            String path = cli.getOptionValue("file");
+            System.out.println(path);
+            String b64regex = Files.readString(Paths.get(path), StandardCharsets.UTF_8);
             JSONObject jsonObject = Batch.handleSingleRegex(0, b64regex, true);
             String jsonString = JSON.toJSONString(jsonObject, SerializerFeature.PrettyFormat);
             System.out.println(jsonString);
@@ -139,6 +148,12 @@ public class Main {
                 false,
                 "recover preprocessed regex"
         );
+        Option opt13 = new Option(
+                "f",
+                "file",
+                true,
+                "base64ed regex in given file path"
+        );
         opt2.setRequired(false);
         opt11.setRequired(false);
         options.addOption(opt2);
@@ -152,6 +167,7 @@ public class Main {
         options.addOption(opt10);
         options.addOption(opt11);
         options.addOption(opt12);
+        options.addOption(opt13);
         try {
             return cliParser.parse(options, args);
         } catch (ParseException e) {
